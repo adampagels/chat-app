@@ -6,32 +6,73 @@ import { StyleSheet, Text, View, Platform } from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat';
 //import keyboardspacer
 import KeyboardSpacer from 'react-native-keyboard-spacer';
+//import firebase
+const firebase = require('firebase');
+require('firebase/firestore');
 // create Screen2 (Chat) class
 export default class Chat extends Component {
-  state = {
-    messages: []
-  };
+  constructor() {
+    super();
+    if (!firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: "AIzaSyACDHYIK3Srk7Hac05jjTKnEVXQuiz1-vI",
+        authDomain: "chatapp-9525f.firebaseapp.com",
+        databaseURL: "https://chatapp-9525f.firebaseio.com",
+        projectId: "chatapp-9525f",
+        storageBucket: "chatapp-9525f.appspot.com",
+        messagingSenderId: "322173142591",
+        appId: "1:322173142591:web:d38c70b160f8387ec71a8a",
+        measurementId: "G-THFK4N3PCL"
+      });
+    }
+    this.state = {
+      messages: [],
+      uid: 0
+    };
+    this.referenceChatMessages = firebase.firestore().collection('messages');
+  }
+
   componentDidMount() {
-    this.setState({
-      messages: [
-        {
-          _id: 1,
-          text: 'Hey there!',
-          createdAt: new Date(),
-          user: {
-            _id: 2,
-            name: 'Hello developer',
-            avatar: 'https://placeimg.com/140/140/any',
-          },
-        },
-        {
-          _id: 2,
-          text: 'Hi ' + this.props.navigation.state.params.userName + '. Have a nice chat!',
-          createdAt: new Date(),
-          system: true,
-        },
-      ],
-    })
+    this.authUnsubscribe = firebase.auth().onAuthStateChanged((user) => {
+      if (!user) {
+        firebase.auth().signInAnonymously();
+      }
+      this.setState({
+        uid: user.uid,
+        messages: []
+      });
+      this.unsubscribe = this.referenceChatMessages.orderBy('createdAt', 'desc').onSnapshot(this.onCollectionUpdate);
+    });
+}
+
+  componentWillUnmount() {
+    this.unsubscribe();
+  };
+
+  onCollectionUpdate = (querySnapshot) => {
+    const messages = [];
+    // go through each document
+    querySnapshot.forEach((doc) => {
+      // get the QueryDocumentSnapshot's data
+      var data = doc.data();
+      messages.push({
+        _id: data._id,
+        text: data.text,
+        createdAt: data.createdAt.toDate(),
+        user: data.user
+      });
+    });
+  };
+
+  addMessage() {
+    const message = this.state.messages[0];
+    this.referenceChatMessages.add({
+      _id: message._id,
+      text: message.text,
+      createdAt: message.createdAt,
+      uid: this.state.uid,
+      user: message.user
+    });
   }
   //define title in navigation bar
   static navigationOptions = ({ navigation }) => {
@@ -43,7 +84,9 @@ export default class Chat extends Component {
   onSend(messages = []) {
     this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, messages),
-    }))
+    }), () => {
+      this.addMessage();
+    });
   }
   //render components
   render() {
@@ -53,9 +96,9 @@ export default class Chat extends Component {
         <GiftedChat
           messages={this.state.messages}
           onSend={messages => this.onSend(messages)}
-          user={{
-            _id: 1,
-          }}
+          user={
+            {_Id:this.state.uid}
+          }
         />
         {Platform.OS === 'android' ? <KeyboardSpacer /> : null }
       </View>
