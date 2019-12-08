@@ -1,145 +1,129 @@
-import React, { Component } from 'react';
-//import relevant components from react native
-import { StyleSheet, Text, View, TextInput, Button, Alert, ImageBackground, TouchableOpacity } from 'react-native';
+import React from 'react';
 
-// create Screen1 (Start) class
-export default class Start extends Component {
+import { StyleSheet, Platform, ImageBackground, Text, TextInput, Alert, TouchableOpacity, Button, View } from 'react-native';
+import KeyboardSpacer from 'react-native-keyboard-spacer';
 
-  // define state
-  state = {
-    userName: '',
-    backgroundColor: ''
-  }
+export default class Start extends React.Component {
 
-  //render components
-  render() {
-    return (
-
-      <ImageBackground source={require("../assets/BackgroundImage.png")} style={styles.backgroundImage}>
-         {/*App title*/}
-         <Text style={styles.appTitle}>ChatApp</Text>
-          {/*login container*/}
-          <View style={styles.logIn}>
-            {/*textinput form*/}
-            <TextInput
-              style={styles.userNameInput}
-              onChangeText={(userName) => this.setState({userName})}
-              value={this.state.userName}
-              placeholder='Your Name...'
-            />
-            {/*choose backgroundcolor*/}
-            <Text style={styles.choseBackgroundColor}>Choose Background Color:</Text>
-            {/*wrapper for the different available background colors*/}
-            <View style={styles.backgroundColorWrapper}>
-              {/*black*/}
-              <TouchableOpacity onPress={()=> { this.setState({ backgroundColor: '#090C08' }) }}>
-                <View style={[styles.backgroundColor, styles.black]} >
-                </View>
-              </TouchableOpacity>
-              {/*purple*/}
-              <TouchableOpacity onPress={()=> { this.setState({ backgroundColor: '#474056' }) }}>
-                <View style={[styles.backgroundColor, styles.purple]}>
-                </View>
-              </TouchableOpacity>
-              {/*gray*/}
-              <TouchableOpacity onPress={()=> { this.setState({ backgroundColor: '#8A95A5' }) }}>
-                <View style={[styles.backgroundColor, styles.gray]}>
-                </View>
-              </TouchableOpacity>
-              {/*green*/}
-              <TouchableOpacity onPress={()=> { this.setState({ backgroundColor: '#B9C6AE' }) }}>
-                <View style={[styles.backgroundColor, styles.green]}>
-                </View>
-              </TouchableOpacity>
-            </View>
-            {/*start chatting button --> directs you to conversation screen*/}
-            <Button
-              onPress={() => {
-                this.props.navigation.navigate('Chat', { userName: this.state.userName, backgroundColor: this.state.backgroundColor });
-              }}
-              title="Start Chatting"
-              color = '#757083'
-              style={styles.startChatButton}
-            />
-    </View>
-    </ImageBackground>
-      );
+  constructor(props){
+    super(props);
+    this.state = {
+      name: '',
+      color: ''
     }
-  };
-//stylesheets
+  }
+  render(){
+  return (
+    <ImageBackground source={require('../assets/BackgroundImage.png')} style={styles.backImage}>
+      <Text style={styles.title}>Chat App</Text>
+      <View style={styles.container}>
+        <TextInput style={styles.nameBox}
+          onChangeText={(name) => this.setState({name})}
+          value={this.state.name}
+          placeholder='Your Name'
+        />
+        <Text style={styles.text}>
+          Choose Background Color:
+        </Text>
+        <View style={styles.colorSelection}>
+          <TouchableOpacity
+            onPress={() => this.setState({ color: '#090C08'})}
+            style={[styles.colorButton, styles.color1]}
+          />
+          <TouchableOpacity
+            onPress={() => this.setState({ color: '#474056'})}
+            style={[styles.colorButton, styles.color2]}
+          />
+          <TouchableOpacity
+            onPress={() => this.setState({ color: '#8A95A5'})}
+            style={[styles.colorButton, styles.color3]}
+          />
+          <TouchableOpacity
+            onPress={() => this.setState({ color: '#B9C6AE'})}
+            style={[styles.colorButton, styles.color4]}
+          />
+        </View>
+        <Button
+          style={styles.button}
+          title="Start Chatting"
+          onPress={() => this.props.navigation.navigate('Chat', { name: this.state.name, color: this.state.color})}
+        />
+        {Platform.OS === 'android' ? <KeyboardSpacer /> : null }
+      </View>
+    </ImageBackground>
+  );
+}
+}
 const styles = StyleSheet.create({
-  backgroundImage: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
   container: {
     flex: 1,
-    height: '100%',
-    width: '100%'
-  },
-  logIn: {
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
     height: '44%',
     width: '88%',
-    backgroundColor: 'white',
-    marginBottom: '25%',
-    flexDirection: 'column',
-    justifyContent: 'space-around',
-    alignItems: 'center'
+    marginBottom: 130
   },
-  appTitle: {
-    fontSize: 45,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    marginTop: '6%'
+  backImage:{
+    flex: 1,
+    alignItems: 'center',
+    width: '100%',
+    height: '100%'
   },
-  userNameInput: {
-    width: '88%',
-    height: 40,
-    borderColor: 'gray',
+  nameBox: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: '#000000',
     borderWidth: 1,
-    fontSize: 16,
-    color: '#757083',
-    fontWeight: '300',
-    opacity: 0.5
+    borderColor: 'grey',
+    marginBottom: 30,
+    marginTop: 30,
+    width: '88%'
   },
-  startChatButton: {
-    width: '88%',
-    height: 40,
+  text: {
     fontSize: 16,
-    fontWeight: '600',
-    backgroundColor: '#757083'
-  },
-  choseBackgroundColor: {
-    width: '88%',
-    fontSize: 16,
-    fontWeight: '300',
+    fontWeight: "300",
     color: '#757083'
   },
-  backgroundColorWrapper: {
-    width: '88%',
+  title:{
+    flex: 1,
+    alignItems: 'center',
+    fontSize: 45,
+    fontWeight: "600",
+    color: '#FFFFFF',
+    marginTop: 75,
+  },
+  colorSelection:{
+    flex: 4,
     flexDirection: 'row',
-    justifyContent: 'flex-start'
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    margin: 15
   },
-  backgroundColor: {
-    height: 40,
-    width: 40,
-    borderRadius: 40/2,
-    marginLeft: 15
+  colorButton:{
+      height: 35,
+      width: 35,
+      borderRadius: 70,
+      margin: 20
   },
-  black: {
+  color1:{
     backgroundColor: '#090C08'
   },
-  purple: {
+  color2:{
     backgroundColor: '#474056'
   },
-  gray: {
+  color3:{
     backgroundColor: '#8A95A5'
   },
-  green: {
+  color4:{
     backgroundColor: '#B9C6AE'
   },
+  button: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: '#FFFFFF',
+    backgroundColor: '#757083',
+    width: '88%',
+    marginBottom: 30
+  }
 });
