@@ -1,28 +1,18 @@
-//import react component
 import React, { Component } from 'react';
-//import relevant components from react native
-import 
-{  StyleSheet,
-  ImageBackground,
-  Text,
-  TextInput,
-  Alert,
-  TouchableOpacity,
-  Button,
-  View,
-  Platform,
-  NetInfo,
-  AsyncStorage } 
-  from 'react-native';
-// import gifted chat
-import { GiftedChat, InputToolbar } from 'react-native-gifted-chat';
-//import keyboardspacer
-import KeyboardSpacer from 'react-native-keyboard-spacer';
-//import firebase
+import { Platform, StyleSheet, View, Text, AsyncStorage, NetInfo } from 'react-native';
+import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat';
+import MapView from 'react-native-maps';
+// import fix for Android keyboards
+import KeyboardSpacer from 'react-native-keyboard-spacer'
+
+//import CustomActions 
+import CustomActions from './CustomActions';
+
+//import firebase/firestore
 const firebase = require('firebase');
 require('firebase/firestore');
 
-// create Screen2 (Chat) class
+// create Chat (Screen2) class
 export default class Chat extends Component {
   constructor() {
     super();
@@ -76,6 +66,8 @@ export default class Chat extends Component {
         text: data.text,
         createdAt: data.createdAt.toDate(),
         user: data.user,
+        image: data.image || '',
+        location: data.location || null,
       });
     });
     this.setState({
@@ -90,6 +82,8 @@ export default class Chat extends Component {
         createdAt: this.state.messages[0].createdAt,
         user: this.state.user,
         uid: this.state.uid,
+        image: this.state.messages[0].image || '',
+        location: this.state.messages[0].location || null,
     });
   }
   onSend(messages = []) {
@@ -129,7 +123,6 @@ export default class Chat extends Component {
       console.log(error.message);
     }
   }
-
   componentDidMount() {
     // listen to authentication events
     NetInfo.isConnected.fetch().then(isConnected => {
@@ -172,7 +165,24 @@ export default class Chat extends Component {
     // stop listening for changes
     this.unsubscribeMessageUser();
   }
+
   //Gifted Chat functions
+  renderBubble(props) {
+  return (
+    <Bubble
+      {...props}
+      wrapperStyle={{
+        right: {
+          backgroundColor: '#123458'
+        },
+        left: {
+          backgroundColor: '#6495ED'
+        }
+      }}
+    />
+  )
+}
+
   renderInputToolbar(props){
     if (this.state.isConnected == false){
     } else {
@@ -183,31 +193,50 @@ export default class Chat extends Component {
       )
     }
   }
-  render() {
+  renderCustomActions = (props) => {
+   return <CustomActions {...props} />;
+ };
+
+ renderCustomView (props) {
+  const { currentMessage } = props;
+  if (currentMessage.location) {
     return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: this.props.navigation.state.params.color
-        }}
-      >
-        <GiftedChat
-          renderInputToolbar={this.renderInputToolbar.bind(this)}
-          messages={this.state.messages}
-          onSend={messages => this.onSend(messages)}
-          user={this.state.user}
-        />
-        {Platform.OS === "android" ? <KeyboardSpacer /> : null}
-      </View>
-    );
-  }
+        <MapView
+        style={{width: 150, height: 100, borderRadius: 13, margin: 3}}
+        region={{latitude: currentMessage.location.latitude, longitude: currentMessage.location.longitude, latitudeDelta: 0.0922, longitudeDelta: 0.0421}}
+      />
+  );
+}
+return null;
+}
+render() {
+ return (
+   <View
+     style={{
+       flex: 1,
+       backgroundColor: this.props.navigation.state.params.color
+     }}
+   >
+     <GiftedChat
+       renderBubble={this.renderBubble.bind(this)}
+       renderInputToolbar={this.renderInputToolbar.bind(this)}
+       renderActions={this.renderCustomActions.bind(this)}
+       renderCustomView={this.renderCustomView}
+       messages={this.state.messages}
+       onSend={messages => this.onSend(messages)}
+       user={this.state.user}
+     />
+     {Platform.OS === "android" ? <KeyboardSpacer /> : null}
+   </View>
+ );
+}
 }
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%"
-  }
+container: {
+ flex: 1,
+ backgroundColor: "#fff",
+ alignItems: "center",
+ justifyContent: "center",
+ width: "100%"
+}
 });
