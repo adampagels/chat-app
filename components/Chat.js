@@ -31,6 +31,7 @@ export default class Chat extends Component {
     
     this.referenceMessageUser = null;
     this.referenceMessages = firebase.firestore().collection('messages')
+
     this.state = {
       messages: [],
       uid: 0,
@@ -48,13 +49,18 @@ export default class Chat extends Component {
       title: navigation.state.params.name
     };
   };
-  get user() {
-    return {
-      name: this.props.navigation.state.params.name,
-      _id: this.state.uid,
-      id: this.state.uid,
-    }
+
+  //allows default values to be set for a users name and avatar 
+  setUser = (_id, name = 'Guest User', avatar = 'https://placeimg.com/140/140/any') => {
+    this.setState({
+      user: {
+        _id: _id,
+        name: name,
+        avatar: avatar,
+      }
+    })
   }
+
   onCollectionUpdate = (querySnapshot) => {
     const messages = [];
     // go through each document
@@ -86,7 +92,7 @@ export default class Chat extends Component {
         location: this.state.messages[0].location || null,
     });
   }
-  onSend(messages = []) {
+   onSend(messages = []) {
     this.setState(
       previousState => ({
         messages: GiftedChat.append(previousState.messages, messages)
@@ -97,6 +103,7 @@ export default class Chat extends Component {
       }
     );
   }
+
 // async functions
   getMessages = async () => {
     let messages = '';
@@ -109,6 +116,7 @@ export default class Chat extends Component {
       console.log(error.message);
     }
   };
+
   saveMessages = async () => {
     try {
       await AsyncStorage.setItem('messages', JSON.stringify(this.state.messages));
@@ -116,6 +124,7 @@ export default class Chat extends Component {
       console.log(error.message);
     }
   }
+
   deleteMessage = async () => {
     try {
       await AsyncStorage.removeItem('messages');
@@ -123,6 +132,7 @@ export default class Chat extends Component {
       console.log(error.message);
     }
   }
+
   componentDidMount() {
     // listen to authentication events
     NetInfo.isConnected.fetch().then(isConnected => {
@@ -136,35 +146,41 @@ export default class Chat extends Component {
             await firebase.auth().signInAnonymously();
           }
           //update user state with currently active user data
-          this.setState({
-            uid: user.uid,
-            user: {
-              _id: user.uid,
-              name: this.props.navigation.state.params.name,
-              avatar: '',
-            },
-            loggedInText: "Hello there"
-          });
-      // create a reference to the active user's documents (messages)
-        this.referenceMessageUser = firebase.firestore().collection("messages");
-        // listen for collection changes for current user
-        this.unsubscribeMessageUser = this.referenceMessageUser.onSnapshot(this.onCollectionUpdate);
-      });
-    } else {
-      console.log('offline');
-      this.setState({
-        isConnected: false,
-      });
-      this.getMessages();
+          if(!this.props.navigation.state.params.name){
+            this.setUser(user.uid );
+            this.setState({
+              uid: user.uid,
+              loggedInText: "Hello there"
+            });
+          }else{
+            this.setUser(user.uid, this.props.navigation.state.params.name )
+            this.setState({
+              uid: user.uid,
+              loggedInText: "Hello there"
+            });
+          }
+  
+        // create a reference to the active user's documents (messages)
+          this.referenceMessageUser = firebase.firestore().collection("messages");
+          // listen for collection changes for current user
+          this.unsubscribeMessageUser = this.referenceMessageUser.onSnapshot(this.onCollectionUpdate);
+        });
+      } else {
+        console.log('offline');
+        this.setState({
+          isConnected: false,
+        });
+        this.getMessages();
+      }
+    })
     }
-  })
-  }
-  componentWillUnmount() {
-    // stop listening to authentication
-    this.authUnsubscribe();
-    // stop listening for changes
-    this.unsubscribeMessageUser();
-  }
+
+    componentWillUnmount() {
+      // stop listening to authentication
+      this.authUnsubscribe();
+      // stop listening for changes
+      this.unsubscribeMessageUser();
+    }
 
   //Gifted Chat functions
   renderBubble(props) {
@@ -193,6 +209,7 @@ export default class Chat extends Component {
       )
     }
   }
+  
   renderCustomActions = (props) => {
    return <CustomActions {...props} />;
  };

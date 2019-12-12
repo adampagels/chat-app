@@ -26,23 +26,26 @@ import * as Location from 'expo-location';
 
 export default class CustomActions extends Component {
 
-
   pickImage = async () => {
+    try{
     const {status} = await Permissions.askAsync(Permissions.CAMERA_ROLL);
 
     if(status === 'granted'){
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
       }).catch(error => console.log(error));
-
       if (!result.cancelled){
         const imageUrl = await this.uploadImage(result.uri);
         this.props.onSend({ image: imageUrl})
       }
     }
+  } catch (error){
+    console.log(error.message)
   }
+}
 
-  takePhoto = async () =>{
+  takePhoto = async () => {
+    try{
     const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL, Permissions.CAMERA);
       if(status === 'granted'){
         let result = await ImagePicker.launchCameraAsync({
@@ -53,11 +56,14 @@ export default class CustomActions extends Component {
           this.props.onSend({ image: imageUrl})
         }
       }
+    } catch(error){
+      console.log(error.message)
     }
+  }
 
   getLocation = async () => {
+    try{
     const { status } = await Permissions.askAsync(Permissions.LOCATION);
-
     if(status === 'granted'){
       let result = await Location.getCurrentPositionAsync({}).catch(error => console.log(error));
       const longitude = JSON.stringify(result.coords.longitude);
@@ -71,9 +77,13 @@ export default class CustomActions extends Component {
         })
       }
     }
+  } catch(error){
+    console.log(error)
   }
+}
 
   uploadImage = async (uri) => {
+    try{
     const blob = await new Promise((resolve, reject) =>{
       const xhr = new XMLHttpRequest();
       xhr.onload = function(){
@@ -90,40 +100,40 @@ export default class CustomActions extends Component {
     //this will make a unique file name for each image uploaded
     let uriParts = uri.split('/')
     let imageName = uriParts[uriParts.length - 1]
-
     const ref = firebase.storage().ref().child(`${imageName}`)
     const snapshot = await ref.put(blob);
     blob.close();
     const imageUrl = await snapshot.ref.getDownloadURL();
     return imageUrl;
+  }catch(error){
+    console.log(error)
+    }
   }
-
-
 
   onActionPress = () => {
-      const options = ['Choose From Library', 'Take Picture', 'Send Location', 'Cancel'];
-      const cancelButtonIndex = options.length - 1;
-      this.context.actionSheet().showActionSheetWithOptions(
-        {
-          options,
-          cancelButtonIndex,
-        },
-        async (buttonIndex) => {
-          switch (buttonIndex){
-            case 0:
-              console.log('user wants to pick an image');
-              return this.pickImage();
-            case 1:
-              console.log('user wants to take a picture');
-              return this.takePhoto();
-            case 2:
-              console.log('user wants to get their location');
-              return this.getLocation();
-            default:
-          }
-        },
-      )
-  }
+    const options = ['Choose From Library', 'Take Picture', 'Send Location', 'Cancel'];
+    const cancelButtonIndex = options.length - 1;
+    this.context.actionSheet().showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+      },
+      async (buttonIndex) => {
+        switch (buttonIndex){
+          case 0:
+            console.log('user wants to pick an image');
+            return this.pickImage();
+          case 1:
+            console.log('user wants to take a picture');
+            return this.takePhoto();
+          case 2:
+            console.log('user wants to get their location');
+            return this.getLocation();
+          default:
+        }
+      },
+    )
+}
 
   render(){
     return(
