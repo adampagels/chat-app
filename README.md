@@ -37,3 +37,7 @@ run `npm install` to install all the modules.
 
 ## Libraries
 [GiftedChat](https://github.com/FaridSafi/react-native-gifted-chat)
+
+
+
+[TRELLO BOARD](https://trello.com/b/4wexccMW/native-react-chat-app)
