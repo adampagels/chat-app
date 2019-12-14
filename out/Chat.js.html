@@ -1,4 +1,32 @@
-import React, { Component } from 'react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Chat.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Chat.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { Component } from 'react';
 import { Platform, StyleSheet, View, Text, AsyncStorage, NetInfo } from 'react-native';
 import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat';
 import MapView from 'react-native-maps';
@@ -18,6 +46,7 @@ require('firebase/firestore');
 * @requires React-native
 * @requires react-native-keyboard-spacer
 * @requires react-native-gifted-chat
+* @requires react-native-community/netinfo
 * @requires CustomActions from './CustomActions'
 * @requires firebase
 * @requires firestore
@@ -168,7 +197,7 @@ export default class Chat extends Component {
 * loads all messages from async storage
 * @function getMessages
 * @async
-* @return {Promise<string>} the data from the storage
+* @return {Promise&lt;string>} the data from the storage
 */
 
   getMessages = async () => {
@@ -187,7 +216,7 @@ export default class Chat extends Component {
   * saves messages to AsyncStorage
   * @function saveMessages
   * @async
-  * @return {Promise<string>} The data will be saved to storage
+  * @return {Promise&lt;string>} The data will be saved to storage
   */
 
   saveMessages = async () => {
@@ -203,7 +232,7 @@ export default class Chat extends Component {
   * not currently used in app
   * @function deleteMessage
   * @async
-  * @return {Promise<string>} The data will deleted from storage
+  * @return {Promise&lt;string>} The data will deleted from storage
   */
 
   deleteMessage = async () => {
@@ -279,7 +308,7 @@ export default class Chat extends Component {
   */
   renderBubble(props) {
   return (
-    <Bubble
+    &lt;Bubble
       {...props}
       wrapperStyle={{
         right: {
@@ -302,7 +331,7 @@ export default class Chat extends Component {
     if (this.state.isConnected == false){
     } else {
       return (
-        <InputToolbar
+        &lt;InputToolbar
           {...props}
         />
       )
@@ -314,7 +343,7 @@ export default class Chat extends Component {
   */
   
   renderCustomActions = (props) => {
-   return <CustomActions {...props} />;
+   return &lt;CustomActions {...props} />;
  };
 
  /**
@@ -325,7 +354,7 @@ export default class Chat extends Component {
   const { currentMessage } = props;
   if (currentMessage.location) {
     return (
-        <MapView
+        &lt;MapView
         style={{width: 150, height: 100, borderRadius: 13, margin: 3}}
         region={{latitude: currentMessage.location.latitude, longitude: currentMessage.location.longitude, latitudeDelta: 0.0922, longitudeDelta: 0.0421}}
       />
@@ -340,13 +369,13 @@ render() {
     */
    
  return (
-   <View
+   &lt;View
      style={{
        flex: 1,
        backgroundColor: this.props.navigation.state.params.color
      }}
    >
-     <GiftedChat
+     &lt;GiftedChat
        renderBubble={this.renderBubble.bind(this)}
        renderInputToolbar={this.renderInputToolbar.bind(this)}
        renderActions={this.renderCustomActions.bind(this)}
@@ -355,8 +384,8 @@ render() {
        onSend={messages => this.onSend(messages)}
        user={this.state.user}
      />
-     {Platform.OS === "android" ? <KeyboardSpacer /> : null}
-   </View>
+     {Platform.OS === "android" ? &lt;KeyboardSpacer /> : null}
+   &lt;/View>
  );
 }
 }
@@ -368,4 +397,26 @@ container: {
  justifyContent: "center",
  width: "100%"
 }
-});
+});</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="chat.html">chat</a></li><li><a href="module.exports.html">exports</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addMessage">addMessage</a></li><li><a href="global.html#componentDidMount">componentDidMount</a></li><li><a href="global.html#deleteMessage">deleteMessage</a></li><li><a href="global.html#getLocation">getLocation</a></li><li><a href="global.html#getMessages">getMessages</a></li><li><a href="global.html#onCollectionUpdate">onCollectionUpdate</a></li><li><a href="global.html#pickImage">pickImage</a></li><li><a href="global.html#renderBubblesetsthebackgroundcolorofmessagebubbles">renderBubblesets the background color of message bubbles</a></li><li><a href="global.html#renderCustomView">renderCustomView</a></li><li><a href="global.html#renderInputToolbar">renderInputToolbar</a></li><li><a href="global.html#saveMessages">saveMessages</a></li><li><a href="global.html#setUser">setUser</a></li><li><a href="global.html#styles">styles</a></li><li><a href="global.html#takePhoto">takePhoto</a></li><li><a href="global.html#uploadImage">uploadImage</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Sat Dec 14 2019 11:29:13 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
